@@ -37,17 +37,27 @@ class CRM_CivirulesConditions_Generic_ValueComparison_Test extends \PHPUnit_Fram
   }
 
   /**
-   * Example: Test that a version is returned.
+   * Test the 'string contains' operator
    */
-  public function testWellFormedVersion() {
-    $this->assertRegExp('/^([0-9\.]|alpha|beta)*$/', \CRM_Utils_System::version());
-  }
+  public function testStringContains() {
+    $valueComparisonTest = new ReflectionClass('CRM_CivirulesConditions_Generic_ValueComparison');
+    $compareMethod = $valueComparisonTest->getMethod('compare');
+    $compareMethod->setAccessible(true);
 
-  /**
-   * Example: Test that we're using a fake CMS.
-   */
-  public function testWellFormedUF() {
-    $this->assertEquals('UnitTests', CIVICRM_UF);
+    $testObject = $this->getMockForAbstractClass('CRM_CivirulesConditions_Generic_ValueComparison',
+        array(),
+        '',
+        FALSE,
+        TRUE,
+        TRUE,
+        array()
+        );
+
+    // Test the string on the left contains the string on the right.
+    $this->assertTrue($compareMethod->invoke($testObject, 'test', 'test', 'contains string'));
+    $this->assertFalse($compareMethod->invoke($testObject, 'false', 'truth', 'contains string'));
+    $this->assertTrue($compareMethod->invoke($testObject, 'yes please', 'yes', 'contains string'));
+    $this->assertTrue($compareMethod->invoke($testObject, 'Yes please', 'yes', 'contains string')); // Test caps.
   }
 
 }
